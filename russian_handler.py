@@ -10,14 +10,16 @@ morph = get_morph(morf_storage, backend='shelve')
 
 def declause(sentence):
     #смотрим является, ли предложение content-clause или нет (есть ли союз "что")
+
+    claused_sent = {'type':'nonclaused','clauses':sentence}
+
     if re.search(u',и?\s*что', sentence):
         regexp_pattern = u',и?\s*что'
 
         #создаем токенайзер с заданой регуляркой
         clauses = RegexpTokenizer(regexp_pattern, gaps = True).tokenize(sentence)
 
-        #для первой клаузы(главной, ставим маркер <noncont> каждой вложенной content-клаузы в начале добавляем тэг <content>
-        return [u'<noncont>' + clauses[0]] + [u'<content>' + c for c in clauses[1:]]
+        claused_sent = {'type':'subord','clauses':clauses}
 
     elif re.search(u",\s*(и)|(но)|(а)|(или)\s+", sentence):
 
@@ -26,9 +28,9 @@ def declause(sentence):
 
         #для для каждого не content-<coord>
         clauses = RegexpTokenizer(regexp_pattern, gaps = True).tokenize(sentence)
-        return [u'<noncont>' + c for c in clauses]
-    else:
-        return ''
+        claused_sent = {'type':'coord','clauses':clauses}
+
+    return claused_sent
 
 def search_core(clause):
     #ищем синтаксическое ядро в клаузе
@@ -70,14 +72,26 @@ def search_core(clause):
 
     return  is_a_clause
 
-def get_tense(verb):
-    #этот метод использует морфологический анализатор и возвращает время глагола
-    info = morph.get_graminfo(verb)
-    print info[0]['info'].encode('cp1251')
-    for var in info:
-        #если один из вариантов - разбора глагол, возвращаем второй эл-т ключа ['info'] - время (буд, нст, прш)
-        if var['class'] == u'Г':
-            return var['info'][1]
+def get_tense(clause):
+
+    """
+    этот метод использует морфологический анализатор и возвращает время глагола
+    """
+    words = RegexpTokenizer(u"[A-Za-zА-Яа-я]+").tokenize(clause)
+
+    for w in words:
+        info = morph.get_graminfo(w.upper())
+        for var in info:
+            #если один из вариантов - разбора глагол, возвращаем второй эл-т ключа ['info'] - время (буд, нст, прш)
+            if var['class'] == u'Г':
+                if var['info'][1] == u'буд':
+                    return 'future'
+                elif var['info'][1] == u'нст':
+                    return 'present'
+                elif var['info'][1] == u'прш':
+                    return 'past'
+                else:
+                    return 'undefined'
 
 def process(sentence):
 #   этот метод должен интегрировать предыдущие функции, решать годитс ли оно для обработки
@@ -88,15 +102,20 @@ def process(sentence):
     proccessed_clauses = declause(sentence)
 
     #если в клаузе определяется клауза, добавляем в список, если нет, конкатенируем с предыдущим
-    for sent in proccessed_clauses:
-        if search_core(sent):
-            result.append(sent)
+    for clause in proccessed_clauses['clauses']:
+        if search_core(clause):
+            result.append(clause)
         else:
             if len(result) == 0:
-                result.append(sent)
+                result.append(result)
             else:
-                result[-1] + sent
-    if len(proccessed_clauses) == len(result):
-        return result
-    else:
-        return sentence
+                result[-1] + clause
+
+
+
+    proccessed_clauses['clauses'] = result
+
+    if proccessed_clauses['type'] == 'subord':
+        proccessed_clauses['tense'] = get_tense(proccessed_clauses['clauses'][0])
+
+    return proccessed_clauses
