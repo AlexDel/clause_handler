@@ -7,8 +7,6 @@ from pymorphy import get_morph
 morf_storage = 'morf_storage/ru.shelve'
 morph = get_morph(morf_storage, backend='shelve')
 
-print len(morph.get_graminfo(u'дышло'.upper()))
-
 
 def declause(sentence):
     #смотрим является, ли предложение content-clause или нет (есть ли союз "что")
@@ -81,13 +79,13 @@ def get_tense(verb):
         if var['class'] == u'Г':
             return var['info'][1]
 
-def clause_validator(sentece):
+def process(sentence):
 #   этот метод должен интегрировать предыдущие функции, решать годитс ли оно для обработки
 #   и возвращать поделенное предложение. При проверке проверяем соотвествует ли число поделенных клауз,
 #   числу валидизированных клауз. Если нет, возвращаем None
 
     result = []
-    proccessed_clauses = declause(sentece)
+    proccessed_clauses = declause(sentence)
 
     #если в клаузе определяется клауза, добавляем в список, если нет, конкатенируем с предыдущим
     for sent in proccessed_clauses:
@@ -101,4 +99,4 @@ def clause_validator(sentece):
     if len(proccessed_clauses) == len(result):
         return result
     else:
-        return False
+        return sentence
