@@ -1,4 +1,5 @@
 # coding=utf-8
+import english_handler, russian_handler, normalizer
 
 def clause_split(sentence = '', language=''):
 
