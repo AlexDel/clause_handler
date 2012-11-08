@@ -70,9 +70,10 @@ def define_sentence_props(sentence):
             main_clause = tagged_s[0:i]
             break
 
-    for word,tag in main_clause:
-        if tag in past_tense_tags:
-            sent_props['tense'] = 'past'
+    if main_clause:
+        for word,tag in main_clause:
+            if tag in past_tense_tags:
+                sent_props['tense'] = 'past'
 
     return sent_props
 
@@ -150,12 +151,19 @@ def declause(sentence):
         return [sentence]
 
 def process(sent):
+    clause = {}
     s_prime = flatten(make_parse(pos_tag(sent), grammar1))
 
     if len(s_prime) < 2:
-        return declause(s_prime[0])
+        clause['clauses'] = declause(s_prime[0])
     else:
-        return s_prime
+        clause['clauses'] = s_prime
+
+    clause['type'] = define_sentence_props(sent)['type']
+    clause['tense'] = define_sentence_props(sent)['tense']
+
+    return clause
+
 
 
 #def test():
