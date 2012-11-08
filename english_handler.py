@@ -46,11 +46,38 @@ def pos_tag(sent):
     for i, e in enumerate(tagged_s):
         if re.match(r'V.*',tagged_s[i-1][1]) and tagged_s[i][0] in sub_conj:
             #claused_sent['type'] = 'content'
-            tagged_s[i] = ('that', 'CC')
+            tagged_s[i] = (tagged_s[i][0], 'CC')
 
     return tagged_s
 
-def make_parse(tagged_s, grammar):
+
+def define_sentence_props(sentence):
+    """
+    эта функция определяет параметры главоного (первого) предложения, его время и
+    """
+
+    sent_props = {'type':'undefined', 'tense':'present'}
+    tagged_s = pos_tag(sentence)
+
+    #подчинительные союзы
+    sub_conj = ['that','who','what','why','when']
+    past_tense_tags = ['VBD','BED','BEDZ','HVD','DOD']
+
+    for i, e in enumerate(tagged_s):
+        if re.match(r'V.*',tagged_s[i-1][1]) and tagged_s[i][0] in sub_conj:
+            #claused_sent['type'] = 'content'
+            sent_props['type'] = 'subord'
+            main_clause = tagged_s[0:i]
+            break
+
+    for word,tag in main_clause:
+        if tag in past_tense_tags:
+            sent_props['tense'] = 'past'
+
+    return sent_props
+
+
+def make_parse(tagged_s, grammar = grammar1):
     #готовим парсер
 
     parser = nltk.RegexpParser(grammar,loop=4)
@@ -130,15 +157,16 @@ def process(sent):
     else:
         return s_prime
 
-def test():
-    #берем тесты из csv-файла
-    tests = []
-    for row in csv.reader(open('/home/verbalab/test-set.csv'), delimiter=';'):
-    #переводим в байты из кодировки cp1251
-        tests.append(tuple([r.decode('cp1251') for  r in row]))
-    return tests
 
-tests = test()
+#def test():
+#    #берем тесты из csv-файла
+#    tests = []
+#    for row in csv.reader(open('/home/verbalab/test-set.csv'), delimiter=';'):
+#    #переводим в байты из кодировки cp1251
+#        tests.append(tuple([r.decode('cp1251') for  r in row]))
+#    return tests
+#
+#tests = test()
 
 #готовим тесты
 
