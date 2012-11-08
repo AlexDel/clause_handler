@@ -28,17 +28,29 @@ def check_stream(stream_a, stream_b):
         response['code'] = 2
         response['description'] = 'No clauses for matching found'
 
-    elif len(stream_a) == len(stream_b):
-        response['code'] = 1
-        response['description'] = 'Clauses are found and ready to be matched'
 
     elif len(stream_a) != len(stream_b):
         response['code'] = 3
         response['description'] = "Clauses' size don't match"
 
+    elif stream_b['type'] != stream_a['type']:
+        response['code'] = 4
+        response['description'] = "Types of clauses' don't match"
+
+    elif stream_a[type]  == 'subord' and (stream_b['tense'] == 'past' or stream_a['tense'] == 'past'):
+        response['code'] = 5
+        response['description'] = "Main clause contain past tense."
+
+    elif len(stream_a) == len(stream_b):
+        response['code'] = 1
+        response['description'] = 'Clauses are found and ready to be matched'
+
     return response
 
 
-def merge_clauses(sent):
+def merge_clauses(sent1, sent2):
+    #TODO - здесь будет функция обмена с  другими приложением. допишется после консультации с Гошей
+
     return True
+
 

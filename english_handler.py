@@ -160,6 +160,10 @@ def process(sent):
         clause['clauses'] = s_prime
 
     clause['type'] = define_sentence_props(sent)['type']
+
+    if len(s_prime) > 1 and clause['type'] != 'subord':
+        clause['type'] = 'coord'
+
     clause['tense'] = define_sentence_props(sent)['tense']
 
     return clause
