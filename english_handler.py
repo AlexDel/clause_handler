@@ -8,7 +8,8 @@ morf_storage = 'morf_storage/brill.pkl'
 
 grammar1 = r"""
             NP:
-                {<AT>?<CD>*<PRP$>?<AP>?<DT|NN.*>+}
+                {<AT>?<CD>*<PRP$>?<AP>?<DT|NN.*>+<PP>?}
+                {<AP>?<NP><PP>?}
                 <N.*>{}<N.*>
                 {<N.*><CC>?<N.*>} #?
                 {<PRP>}
@@ -17,16 +18,17 @@ grammar1 = r"""
                 {<AP>?<NP>}
             AP:
                 {<JJR>?<JJ>+}
+                {<JJ.*>}
                 {<A.*><CC>?<A.*>}
             PP:
                 {<IN><NP>}
                 {<P.*><P.*>}
             VP:
-                {<MD>*<RB>*<VB.?><NP|PP|CLAUSE>*<RB>*}
+                {<MD>*<\*>?<RB>*<VB.?><NP|PP|CLAUSE>*<RB>*}
                 {<V.*><CC>?<V.*>}
                 {<BEZ><AP>?}
             CONJ:
-                <NP><PP>?<VP><PP>?{(<CC>|<IN>)}<NP><PP>?<VP><PP>?
+                <NP><PP>?<VP><PP>?{(<CC>|<IN>)}<NP><PP>?<VP><.*>
                         
 """
 
@@ -63,6 +65,8 @@ def define_sentence_props(sentence):
     sub_conj = ['that','who','what','why','when']
     past_tense_tags = ['VBD','BED','BEDZ','HVD','DOD']
 
+    main_clause = ''
+
     for i, e in enumerate(tagged_s):
         if re.match(r'V.*',tagged_s[i-1][1]) and tagged_s[i][0] in sub_conj:
             #claused_sent['type'] = 'content'
@@ -70,7 +74,7 @@ def define_sentence_props(sentence):
             main_clause = tagged_s[0:i]
             break
 
-    if main_clause:
+    if main_clause != '':
         for word,tag in main_clause:
             if tag in past_tense_tags:
                 sent_props['tense'] = 'past'
@@ -161,7 +165,7 @@ def process(sent):
 
     clause['type'] = define_sentence_props(sent)['type']
 
-    if len(s_prime) > 1 and clause['type'] != 'subord':
+    if len(clause['clauses']) > 1 and clause['type'] != 'subord':
         clause['type'] = 'coord'
 
     clause['tense'] = define_sentence_props(sent)['tense']
