@@ -1,5 +1,5 @@
 # coding=utf-8
-import english_handler, russian_handler, normalizer
+import english_handler, russian_handler, normalizer, csv
 
 def split_to_clauses(sentence = '', language=''):
 
@@ -24,7 +24,7 @@ def check_stream(stream_a, stream_b):
 
     response = {'code':0,'description':'Unknown error'}
 
-    if len(stream_a) == 1 and len(stream_b) == 1:
+    if len(stream_a) == 1 or len(stream_b) == 1:
         response['code'] = 2
         response['description'] = 'No clauses for matching found'
 
@@ -33,13 +33,13 @@ def check_stream(stream_a, stream_b):
         response['code'] = 3
         response['description'] = "Clauses' size don't match"
 
-    elif stream_b['type'] != stream_a['type']:
-        response['code'] = 4
-        response['description'] = "Types of clauses' don't match"
+    #elif stream_b['type'] != stream_a['type']:
+     #   response['code'] = 4
+      #  response['description'] = "Types of clauses' don't match"
 
-    elif stream_a[type]  == 'subord' and (stream_b['tense'] == 'past' or stream_a['tense'] == 'past'):
-        response['code'] = 5
-        response['description'] = "Main clause contain past tense."
+    #elif stream_a['type']  == 'subord' and (stream_b['tense'] == 'past' or stream_a['tense'] == 'past'):
+     #   response['code'] = 5
+      #  response['description'] = "Main clause contain past tense."
 
     elif len(stream_a) == len(stream_b):
         response['code'] = 1
@@ -49,8 +49,12 @@ def check_stream(stream_a, stream_b):
 
 
 def merge_clauses(sent1, sent2):
-    #TODO - здесь будет функция обмена с  другими приложением. допишется после консультации с Гошей
 
-    return True
+    checking = check_stream(sent1, sent2)
+
+    if checking['code'] == 1:
+        return zip (sent1['clauses'], sent2['clauses'])
+    else:
+        return checking
 
 

@@ -13,8 +13,8 @@ def declause(sentence):
 
     claused_sent = {'type':'nonclaused','clauses':sentence}
 
-    if re.search(u',и?\s*что', sentence):
-        regexp_pattern = u',и?\s*что'
+    if re.search(u',и?\s*что\s+', sentence):
+        regexp_pattern = u',и?\s*что\s+'
 
         #создаем токенайзер с заданой регуляркой
         clauses = RegexpTokenizer(regexp_pattern, gaps = True).tokenize(sentence)
@@ -107,9 +107,9 @@ def process(sentence):
             result.append(clause)
         else:
             if len(result) == 0:
-                result.append(result)
+                result.append(clause)
             else:
-                result[-1] + clause
+                result[-1] = result[-1] + clause
 
 
 

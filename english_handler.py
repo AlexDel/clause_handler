@@ -101,11 +101,11 @@ def flatten(parsed_s):
         if isinstance(subtree, tuple):
             bounded_sent += ' ' + subtree[0] + ' '
         elif subtree.node == 'CONJ':
-            bounded_sent += '|'
+            bounded_sent += '||'
         else:
             bounded_sent += ' '.join([w for w, t in subtree.leaves()]) + ' '
 
-    return bounded_sent.split('|')
+    return bounded_sent.split('||')
 
 def search_core(clause):
     clause_tree = make_parse(pos_tag(clause), grammar1)
@@ -138,7 +138,7 @@ def declause(sentence):
     if re.search(u',\s*(and)|(but)|(yet)|(or)\s+', sentence):
 
         # разделяем предложение на noncontent-клаузы по границам сочинительных союзов
-        regexp_pattern = u',\s*(and)|(but)|(yet)\s+'
+        regexp_pattern = u',\s*((and)|(but)|(yet)|(or))\s+'
         clauses = RegexpTokenizer(regexp_pattern, gaps = True).tokenize(sentence)
 
         good_clauses = []
