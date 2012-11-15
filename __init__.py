@@ -118,7 +118,7 @@ def merge_clauses(sentences):
 
     if(zipped_clauses):
         for pairs in zipped_clauses:
-            output['clauses'].append({'ru':pairs[0],'en':pairs[1]})
+            output['clauses'].append({'ru':normalizer.normalize(pairs[0]),'en':normalizer.normalize(pairs[1])})
     else:
         output['clauses'] = None
 

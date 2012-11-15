@@ -17,4 +17,4 @@ def normalize(clause):
     #делаем заглавную букву в начале и точку в конце
     clause = clause[0].upper() + clause[1:] + u'.'
 
-    return clause
+    return unicode(clause)
