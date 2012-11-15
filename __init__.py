@@ -1,20 +1,44 @@
 # coding=utf-8
-import english_handler, russian_handler, normalizer, csv
+import english_handler, russian_handler, normalizer, csv, json
 
-def split_to_clauses(sentence = '', language=''):
+
+def split_to_clauses(enter_sentence):
 
     """
     метод разбивает предложение на клаузы,
     выбирая по языку нужные обработчики
+    принимает на вход переменную в json следующего вида:
+
+    {'language':  'sentence''}
+    где
+        'language' - язык предлоэения,
+        'sentence' - текст предложения
+
+    :rtype : json
+    {{'clauses':[clause1,clause2 ]},'tense':'foo','type':'bar'}
+    где
+        clauses - полученные при извлечении клаузы
+        tense - время пердложения
+        type - тип предложения, coord или subord
+
     """
-    if language == 'ru':
-        return russian_handler.process(sentence)
 
-    elif language == 'en':
-        return english_handler.process(sentence)
+    sentence = json.loads(enter_sentence)
 
+    if sentence.key() == u'ru':
+
+        output = russian_handler.process(sentence['ru'])
+
+    elif sentence.key() == u'en':
+
+        output = english_handler.process(sentence['en'])
     else:
-        return ''
+        output = None
+
+    output['language'] = sentence['language']
+
+    print json.dumps(output)
+    return json.dumps(output)
 
 
 def check_stream(stream_a, stream_b):
@@ -48,13 +72,55 @@ def check_stream(stream_a, stream_b):
     return response
 
 
-def merge_clauses(sent1, sent2):
+def merge_clauses(sentences):
+
+    """
+    этот метод получает json в виде списка "язык-предлоэение"
+    {
+        'ru':russian_sentence
+        'en':english_sentence
+    }
+
+    возращает список клауз + код ответа
+    {
+        'clauses':
+        [{'ru':rus_clause_i.'en':eng_clause_i}]
+        [{'ru':rus_clause_i.'en':eng_clause_i}]
+        [{'ru':rus_clause_i.'en':eng_clause_i}]
+        response:
+            {code:0,
+            description:''}
+
+    }
+
+    """
+    input = json.loads(sentences)
+
+    sent_rus = input['ru']
+    sent_en = input['en']
+
+    sent1 = json.loads(split_to_clauses(json.dumps({'ru':sent_rus})))
+    sent2 = json.loads(split_to_clauses(json.dumps({'en':sent_en})))
 
     checking = check_stream(sent1, sent2)
 
+
     if checking['code'] == 1:
-        return zip (sent1['clauses'], sent2['clauses'])
+        zipped_clauses =  zip(sent1['clauses'], sent2['clauses'])
     else:
-        return checking
+        zipped_clauses = None
 
+    #пока что zipped_clauses[i][0] - русские клаузы,  zipped_clauses[i][2] - английские
+    #со временем необходимо переделать метод под произвольные языки
 
+    #инициализируем переменную для вывода
+    output = {'clauses':[],'response':checking}
+
+    if(zipped_clauses):
+        for pairs in zipped_clauses:
+            output['clauses'].append({'ru':pairs[0],'en':pairs[1]})
+    else:
+        output['clauses'] = None
+
+    print json.dumps(output)
+    return json.dumps(output)

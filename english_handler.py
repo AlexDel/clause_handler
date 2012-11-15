@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import nltk, re, csv
+import nltk, re
 from nltk.tokenize import RegexpTokenizer
 
 #подргужаем морфологию
@@ -171,21 +171,6 @@ def process(sent):
     clause['tense'] = define_sentence_props(sent)['tense']
 
     return clause
-
-
-
-#def test():
-#    #берем тесты из csv-файла
-#    tests = []
-#    for row in csv.reader(open('/home/verbalab/test-set.csv'), delimiter=';'):
-#    #переводим в байты из кодировки cp1251
-#        tests.append(tuple([r.decode('cp1251') for  r in row]))
-#    return tests
-#
-#tests = test()
-
-#готовим тесты
-
 
 
 
