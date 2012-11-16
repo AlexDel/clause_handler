@@ -57,9 +57,9 @@ def check_stream(stream_a, stream_b):
         response['code'] = 3
         response['description'] = "Clauses' size don't match"
 
-    #elif stream_b['type'] != stream_a['type']:
-     #   response['code'] = 4
-      #  response['description'] = "Types of clauses' don't match"
+    elif stream_b['type'] != stream_a['type']:
+        response['code'] = 4
+        response['description'] = "Types of clauses' don't match"
 
     #elif stream_a['type']  == 'subord' and (stream_b['tense'] == 'past' or stream_a['tense'] == 'past'):
      #   response['code'] = 5
